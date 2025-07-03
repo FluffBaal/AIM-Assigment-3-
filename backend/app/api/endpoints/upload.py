@@ -1,12 +1,16 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
 from typing import Dict, Any
 import logging
 from pathlib import Path
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.core.config import settings
 from app.api.dependencies import get_api_key
 from app.services.pdf_service import PDFService
 from app.models.upload import UploadResponse
+from app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
+from app.middleware.request_validator import sanitize_filename
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -14,12 +18,17 @@ router = APIRouter()
 pdf_service = PDFService()
 
 @router.post("/pdf", response_model=UploadResponse)
+@api_key_limiter.limit(RATE_LIMITS["upload"])
 async def upload_pdf(
+    request: Request,
     file: UploadFile = File(...),
     api_key: str = Depends(get_api_key)
 ) -> UploadResponse:
+    # Sanitize filename
+    safe_filename = sanitize_filename(file.filename) if file.filename else "unknown.pdf"
+    
     # Validate file type
-    if not file.filename.lower().endswith('.pdf'):
+    if not safe_filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     
     # Check file size

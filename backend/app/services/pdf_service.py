@@ -3,11 +3,14 @@ import uuid
 from pathlib import Path
 from typing import Dict, Any
 import logging
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.vectordatabase import VectorDatabase
 from aimakerspace.openai_utils.embedding import EmbeddingModel
 from app.core.config import settings
+from app.core.performance import measure_performance, run_in_thread_pool
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +22,7 @@ class PDFService:
     def generate_file_id(self) -> str:
         return str(uuid.uuid4())
     
+    @measure_performance("pdf_processing")
     async def process_pdf(self, file_path: Path, file_id: str, api_key: str) -> Dict[str, Any]:
         try:
             # Load PDF

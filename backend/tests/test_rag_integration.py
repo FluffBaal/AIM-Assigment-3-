@@ -60,18 +60,18 @@ class TestRAGIntegration:
         vectors = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.7, 0.8, 0.9]]
         metadata = [{"id": i} for i in range(3)]
         
-            # Build database
-            vector_db.vectors = vectors
-            vector_db.texts = texts
-            vector_db.metadata = metadata
+        # Build database
+        vector_db.vectors = vectors
+        vector_db.texts = texts
+        vector_db.metadata = metadata
         
-            # Test search (mock embedding for query)
-            with patch.object(vector_db, 'embed_and_search') as mock_search:
-                mock_search.return_value = [(texts[1], metadata[1], 0.9)]
-                results = mock_search("learning", k=1)
-                
-                assert len(results) == 1
-                assert results[0][0] == "Machine learning"
+        # Test search (mock embedding for query)
+        with patch.object(vector_db, 'embed_and_search') as mock_search:
+            mock_search.return_value = [(texts[1], metadata[1], 0.9)]
+            results = mock_search("learning", k=1)
+            
+            assert len(results) == 1
+            assert results[0][0] == "Machine learning"
     
     @patch('os.environ')
     @patch('app.services.pdf_service.EmbeddingModel')
