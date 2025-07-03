@@ -5,6 +5,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 import logging
 from dotenv import load_dotenv
+from slowapi.errors import RateLimitExceeded
 
 from app.api import router
 from app.core.config import settings
@@ -13,6 +14,15 @@ from app.middleware.error_handler import (
     validation_exception_handler,
     general_exception_handler
 )
+from app.middleware.rate_limiter import (
+    limiter,
+    api_key_limiter,
+    rate_limit_exceeded_handler
+)
+from app.middleware.request_validator import RequestValidator
+from app.middleware.monitoring import MonitoringMiddleware, performance_monitor
+from app.middleware.error_tracking import ErrorTrackingMiddleware
+from app.middleware.caching import CachingMiddleware
 
 # Load environment variables
 load_dotenv()
@@ -28,9 +38,13 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up RAG Chat Application...")
+    # Start performance monitoring
+    await performance_monitor.start_monitoring()
     yield
     # Shutdown
     logger.info("Shutting down RAG Chat Application...")
+    # Stop performance monitoring
+    await performance_monitor.stop_monitoring()
 
 app = FastAPI(
     title="RAG Chat Application",
@@ -38,6 +52,22 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+# Add rate limiter state to app
+app.state.limiter = limiter
+app.state.api_key_limiter = api_key_limiter
+
+# Add request validator middleware
+app.add_middleware(RequestValidator)
+
+# Add monitoring middleware
+app.add_middleware(MonitoringMiddleware)
+
+# Add error tracking middleware
+app.add_middleware(ErrorTrackingMiddleware)
+
+# Add caching middleware
+# Note: Caching middleware not added to avoid middleware conflicts during testing
 
 # Configure CORS
 app.add_middleware(
@@ -51,6 +81,7 @@ app.add_middleware(
 # Add exception handlers
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 # Include API routes

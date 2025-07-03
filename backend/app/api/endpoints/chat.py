@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator, Dict
 import json
@@ -7,6 +7,7 @@ import logging
 from app.api.dependencies import get_api_key
 from app.models.chat import ChatRequest, ChatResponse
 from app.services.chat_service import ChatService
+from app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -14,7 +15,9 @@ router = APIRouter()
 chat_service = ChatService()
 
 @router.post("/message")
+@api_key_limiter.limit(RATE_LIMITS["chat"])
 async def chat_message(
+    req: Request,
     request: ChatRequest,
     api_key: str = Depends(get_api_key)
 ) -> ChatResponse:

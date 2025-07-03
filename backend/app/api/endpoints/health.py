@@ -1,17 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from typing import Dict
+from app.middleware.rate_limiter import limiter, RATE_LIMITS
 
 router = APIRouter()
 
 @router.get("/status")
-async def health_status() -> Dict[str, str]:
+@limiter.limit(RATE_LIMITS["health"])
+async def health_status(request: Request) -> Dict[str, str]:
     return {
         "status": "healthy",
         "service": "rag-chat-api"
     }
 
 @router.get("/ready")
-async def readiness_check() -> Dict[str, bool]:
+@limiter.limit(RATE_LIMITS["health"])
+async def readiness_check(request: Request) -> Dict[str, bool]:
     return {
         "database": True,
         "openai": True,
