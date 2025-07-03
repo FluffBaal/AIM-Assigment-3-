@@ -1,7 +1,7 @@
 # RAG Chat Application Development Plan
 
 ## Project Overview
-A modern RAG (Retrieval-Augmented Generation) chat application that allows users to upload PDFs and chat with them using GPT-4o-mini.
+A modern RAG (Retrieval-Augmented Generation) chat application that allows users to upload PDFs and chat with them using GPT-4.1-mini.
 
 ## Tech Stack
 - **Backend**: FastAPI + Python 3.11

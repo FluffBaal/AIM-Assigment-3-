@@ -78,7 +78,7 @@ class PDFLoader:
         
         try:
             # Try to open the file first to verify access
-            with open(self.path, 'rb') as test_file:
+            with open(self.path, 'rb'):
                 pass
             
             # If we can open it, proceed with loading
