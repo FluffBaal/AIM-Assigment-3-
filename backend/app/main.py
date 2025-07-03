@@ -1,12 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 import logging
 from dotenv import load_dotenv
-import os
 
 from app.api import router
 from app.core.config import settings
+from app.middleware.error_handler import (
+    http_exception_handler,
+    validation_exception_handler,
+    general_exception_handler
+)
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +47,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add exception handlers
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 # Include API routes
 app.include_router(router, prefix="/api/v1")
