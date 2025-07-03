@@ -11,7 +11,12 @@ class Settings(BaseSettings):
     app_port: int = 8000
     
     # CORS
-    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: List[str] = [
+        "http://localhost:5173", 
+        "http://localhost:3000",
+        "https://*.vercel.app",  # Allow all Vercel preview deployments
+        "https://aim-assigment-3.vercel.app",  # Production domain
+    ]
     
     # File Upload
     max_upload_size_mb: int = 10

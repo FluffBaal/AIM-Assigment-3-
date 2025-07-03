@@ -1,4 +1,5 @@
-import React, { useState, useRef, DragEvent } from 'react';
+import React, { useState, useRef } from 'react';
+import type { DragEvent } from 'react';
 import { useApiKey } from '../hooks/useApiKey';
 import { apiClient } from '../services/api';
 

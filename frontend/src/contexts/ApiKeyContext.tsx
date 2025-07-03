@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface ApiKeyContextType {
   apiKey: string | null;
