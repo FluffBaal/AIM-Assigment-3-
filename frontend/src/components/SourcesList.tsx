@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChatSource } from '../types/api';
+import type { ChatSource } from '../types/api';
 
 interface SourcesListProps {
   sources: ChatSource[];
