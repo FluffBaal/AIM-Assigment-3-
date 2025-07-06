@@ -73,7 +73,6 @@ class StatelessAPIClient {
         const data = JSON.parse(stored);
         this.storedPDFData = new Map(data);
       } catch (e) {
-        console.error('Failed to restore PDF data:', e);
       }
     }
   }
@@ -208,7 +207,6 @@ class StatelessAPIClient {
                       const event = JSON.parse(data) as StreamEvent;
                       onMessage(event);
                     } catch (e) {
-                      console.error('Failed to parse event:', e);
                     }
                   }
                 }

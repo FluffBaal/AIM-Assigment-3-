@@ -32,14 +32,21 @@ class ChatOpenAI:
         
         client = AsyncOpenAI()
 
-        stream = await client.chat.completions.create(
-            model=self.model_name,
-            messages=messages,
-            stream=True,
-            **kwargs
-        )
+        try:
+            # Need to await here - streaming returns an AsyncStream after awaiting
+            stream = await client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True,
+                **kwargs
+            )
 
-        async for chunk in stream:
-            content = chunk.choices[0].delta.content
-            if content is not None:
-                yield content
+            async for chunk in stream:
+                if chunk.choices and len(chunk.choices) > 0:
+                    content = chunk.choices[0].delta.content
+                    if content is not None:
+                        yield content
+        except Exception as e:
+            # Log the error but don't raise it - let the caller handle it
+            print(f"OpenAI streaming error: {type(e).__name__}: {str(e)}")
+            raise

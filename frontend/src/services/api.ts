@@ -100,6 +100,7 @@ class ApiClient {
     // Use fetch with ReadableStream for SSE since EventSource doesn't support POST
     const abortController = new AbortController();
     
+    
     fetch('/api/v1/chat/stream', {
       method: 'POST',
       headers: {
@@ -110,6 +111,7 @@ class ApiClient {
       signal: abortController.signal,
     })
       .then(response => {
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -123,6 +125,8 @@ class ApiClient {
 
         const readStream = async () => {
           try {
+            let buffer = '';
+            
             while (true) {
               const { done, value } = await reader.read();
               
@@ -131,23 +135,28 @@ class ApiClient {
                 break;
               }
               
-              const chunk = decoder.decode(value);
-              const lines = chunk.split('\n');
+              const chunk = decoder.decode(value, { stream: true });
+              buffer += chunk;
+              
+              // Process complete lines
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || ''; // Keep incomplete line in buffer
               
               for (const line of lines) {
                 if (line.startsWith('data: ')) {
-                  const data = line.slice(6);
+                  const data = line.slice(6).trim();
                   
                   if (data === '[DONE]') {
                     onComplete();
                     return;
                   }
                   
-                  try {
-                    const event = JSON.parse(data) as StreamEvent;
-                    onMessage(event);
-                  } catch (e) {
-                    console.error('Failed to parse event:', e);
+                  if (data) {
+                    try {
+                      const event = JSON.parse(data) as StreamEvent;
+                      onMessage(event);
+                    } catch (e) {
+                    }
                   }
                 }
               }

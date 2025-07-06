@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     embedding_model: str = "text-embedding-3-small"
     
     # Chat Configuration  
-    chat_model: str = "gpt-4o-mini"  # Using gpt-4o-mini as gpt-4.1-mini doesn't exist
+    chat_model: str = "gpt-4.1-mini"  # Using the latest GPT-4.1-mini model
     max_tokens: int = 2000
     temperature: float = 0.7
     

@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator, Dict
 import json
 import logging
+import asyncio
 
 from app.api.dependencies import get_api_key
 from app.models.chat import ChatRequest, ChatResponse
@@ -43,14 +44,21 @@ async def chat_stream(
     request: ChatRequest,
     api_key: str = Depends(get_api_key)
 ):
+    logger.info(f"Stream endpoint called with message: {request.message[:50]}...")
+    
     async def generate() -> AsyncGenerator[str, None]:
         try:
+            # Stream directly without collecting chunks first
+            has_sent_content = False
+            
             async for chunk in chat_service.generate_stream(
                 file_id=request.file_id,
                 message=request.message,
                 history=request.history,
                 api_key=api_key
             ):
+                logger.info(f"Streaming chunk: type={chunk.get('type')}, content_length={len(chunk.get('content', ''))}")
+                
                 # Format as Server-Sent Events
                 data = json.dumps({
                     "type": chunk["type"],
@@ -58,12 +66,28 @@ async def chat_stream(
                     "sources": chunk.get("sources", [])
                 })
                 yield f"data: {data}\n\n"
+                
+                if chunk.get("type") == "content":
+                    has_sent_content = True
+                
+                # Flush to ensure data is sent immediately
+                await asyncio.sleep(0)  # Allow other tasks to run
+            
+            if not has_sent_content:
+                logger.error("No content chunks were sent")
+                # Add a fallback message
+                error_data = json.dumps({
+                    "type": "content", 
+                    "content": "I apologize, but I'm having trouble generating a response. Please try again."
+                })
+                yield f"data: {error_data}\n\n"
         
         except Exception as e:
-            logger.error(f"Stream error: {str(e)}")
+            logger.error(f"Stream error: {type(e).__name__}: {str(e)}", exc_info=True)
             error_data = json.dumps({"type": "error", "content": str(e)})
             yield f"data: {error_data}\n\n"
         finally:
+            logger.info("Sending [DONE] signal")
             yield "data: [DONE]\n\n"
     
     return StreamingResponse(
@@ -72,6 +96,8 @@ async def chat_stream(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable Nginx buffering
+            "Transfer-Encoding": "chunked",
         }
     )
 

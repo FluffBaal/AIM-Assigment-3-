@@ -22,6 +22,6 @@ def test_health_status():
 def test_readiness_check():
     response = client.get("/api/v1/health/ready")
     assert response.status_code == 200
-    assert response.json()["database"] == True
-    assert response.json()["openai"] == True
-    assert response.json()["storage"] == True
+    assert response.json()["database"] is True
+    assert response.json()["openai"] is True
+    assert response.json()["storage"] is True

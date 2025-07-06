@@ -22,7 +22,6 @@ from app.middleware.rate_limiter import (
 from app.middleware.request_validator import RequestValidator
 from app.middleware.monitoring import MonitoringMiddleware, performance_monitor
 from app.middleware.error_tracking import ErrorTrackingMiddleware
-from app.middleware.caching import CachingMiddleware
 
 # Load environment variables
 load_dotenv()

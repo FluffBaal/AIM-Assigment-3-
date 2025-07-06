@@ -28,7 +28,6 @@ export const ChatPage: React.FC = () => {
         const status = await apiClient.getFileStatus(fileId, apiKey);
         setFileName(status.filename);
       } catch (error) {
-        console.error('Failed to fetch file status:', error);
         navigate('/');
       } finally {
         setIsLoading(false);

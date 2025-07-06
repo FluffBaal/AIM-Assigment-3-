@@ -1,12 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch, AsyncMock
-import json
+from unittest.mock import patch, AsyncMock
 import uuid
-from typing import List, AsyncGenerator
 
 from app.main import app
-from app.models.chat import ChatMessage, ChatSource
 
 client = TestClient(app)
 
