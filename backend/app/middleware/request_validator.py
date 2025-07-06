@@ -1,14 +1,14 @@
-from fastapi import Request, HTTPException
+from fastapi import Request
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from typing import Callable
 import re
 import html
-from urllib.parse import urlparse
 import logging
 
 logger = logging.getLogger(__name__)
 
-class RequestValidator:
+class RequestValidator(BaseHTTPMiddleware):
     """Middleware for request validation and sanitization"""
     
     # Patterns for detecting potentially malicious content
@@ -29,10 +29,11 @@ class RequestValidator:
     MAX_STRING_LENGTH = 10000  # Maximum length for string fields
     MAX_ARRAY_LENGTH = 100  # Maximum items in arrays
     
-    def __init__(self, app):
-        self.app = app
-    
-    async def __call__(self, request: Request, call_next: Callable):
+    async def dispatch(self, request: Request, call_next: Callable):
+        # Skip validation for streaming endpoints
+        if request.url.path.endswith("/stream"):
+            return await call_next(request)
+            
         # Check request size
         if request.headers.get("content-length"):
             content_length = int(request.headers.get("content-length", 0))

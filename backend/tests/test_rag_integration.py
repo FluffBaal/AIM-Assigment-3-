@@ -8,7 +8,6 @@ from app.services.pdf_service import PDFService
 from app.services.chat_service import ChatService
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.vectordatabase import VectorDatabase
-from aimakerspace.openai_utils.embedding import EmbeddingModel
 
 
 class TestRAGIntegration:

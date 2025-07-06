@@ -2,12 +2,10 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
 from typing import Dict, Any
 import logging
 from pathlib import Path
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from app.core.config import settings
 from app.api.dependencies import get_api_key
-from app.services.pdf_service import PDFService
+from app.services import pdf_service_instance
 from app.models.upload import UploadResponse
 from app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
 from app.middleware.request_validator import sanitize_filename
@@ -15,7 +13,7 @@ from app.middleware.request_validator import sanitize_filename
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-pdf_service = PDFService()
+pdf_service = pdf_service_instance
 
 @router.post("/pdf", response_model=UploadResponse)
 @api_key_limiter.limit(RATE_LIMITS["upload"])

@@ -5,7 +5,6 @@ from typing import List, Dict, Any, AsyncGenerator
 from aimakerspace.openai_utils.chatmodel import ChatOpenAI
 from aimakerspace.openai_utils.prompts import SystemRolePrompt, UserRolePrompt
 from app.models.chat import ChatMessage, ChatResponse, ChatSource
-from app.services.pdf_service import PDFService
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -17,7 +16,9 @@ Be concise but thorough in your responses."""
 
 class ChatService:
     def __init__(self):
-        self.pdf_service = PDFService()
+        # Import here to avoid circular imports
+        from app.services import pdf_service_instance
+        self.pdf_service = pdf_service_instance
         self.chat_histories: Dict[str, List[ChatMessage]] = {}
     
     async def generate_response(
@@ -33,17 +34,27 @@ class ChatService:
             raise ValueError(f"No indexed document found for file_id: {file_id}")
         
         # Search for relevant chunks
-        search_results = vector_store.search(message, k=5)
+        search_results = vector_store.search_by_text(message, k=5)
         
         # Prepare context
         context_chunks = []
         sources = []
         
-        for idx, (chunk_text, metadata, score) in enumerate(search_results):
+        # Get metadata stored in vector_store
+        metadata_list = getattr(vector_store, 'metadata', [])
+        
+        for idx, (chunk_text, score) in enumerate(search_results):
             context_chunks.append(f"[Source {idx + 1}] {chunk_text}")
+            # Find matching metadata by chunk text
+            chunk_metadata = {}
+            for i, chunk in enumerate(vector_store.vectors.keys()):
+                if chunk == chunk_text and i < len(metadata_list):
+                    chunk_metadata = metadata_list[i]
+                    break
+            
             sources.append(ChatSource(
-                page=metadata["page"],
-                chunk_id=metadata["chunk_id"],
+                page=chunk_metadata.get("page", 1),
+                chunk_id=chunk_metadata.get("chunk_id", f"chunk_{idx}"),
                 content=chunk_text[:200] + "..." if len(chunk_text) > 200 else chunk_text,
                 relevance_score=float(score)
             ))
@@ -65,7 +76,7 @@ class ChatService:
         
         # Set API key and create chat model
         os.environ["OPENAI_API_KEY"] = api_key
-        chat_model = ChatOpenAI(model=settings.chat_model)
+        chat_model = ChatOpenAI(model_name=settings.chat_model)
         
         # Generate response
         response = chat_model.run(messages)
@@ -95,23 +106,35 @@ class ChatService:
             raise ValueError(f"No indexed document found for file_id: {file_id}")
         
         # Search for relevant chunks
-        search_results = vector_store.search(message, k=5)
+        search_results = vector_store.search_by_text(message, k=5)
         
         # Prepare context and sources
         context_chunks = []
         sources = []
         
-        for idx, (chunk_text, metadata, score) in enumerate(search_results):
+        # Get metadata stored in vector_store
+        metadata_list = getattr(vector_store, 'metadata', [])
+        
+        for idx, (chunk_text, score) in enumerate(search_results):
             context_chunks.append(f"[Source {idx + 1}] {chunk_text}")
+            # Find matching metadata by chunk text
+            chunk_metadata = {}
+            for i, chunk in enumerate(vector_store.vectors.keys()):
+                if chunk == chunk_text and i < len(metadata_list):
+                    chunk_metadata = metadata_list[i]
+                    break
+            
             sources.append({
-                "page": metadata["page"],
-                "chunk_id": metadata["chunk_id"],
+                "page": chunk_metadata.get("page", 1),
+                "chunk_id": chunk_metadata.get("chunk_id", f"chunk_{idx}"),
                 "content": chunk_text[:200] + "..." if len(chunk_text) > 200 else chunk_text,
                 "relevance_score": float(score)
             })
         
         # Yield sources first
         yield {"type": "sources", "sources": sources}
+        logger.info("Sources yielded, preparing to call OpenAI")
+        
         
         context = "\n\n".join(context_chunks)
         
@@ -123,14 +146,56 @@ class ChatService:
         
         # Set API key and create chat model
         os.environ["OPENAI_API_KEY"] = api_key
-        chat_model = ChatOpenAI(model=settings.chat_model)
+        logger.info(f"API key set: {api_key[:20]}...")
+        
+        chat_model = ChatOpenAI(model_name=settings.chat_model)
         
         # Stream response
         full_response = ""
-        async for chunk in chat_model.stream(messages):
-            if chunk:
-                full_response += chunk
-                yield {"type": "content", "content": chunk}
+        logger.info(f"Starting stream with model: {settings.chat_model}")
+        logger.info(f"Messages count: {len(messages)}")
+        logger.info(f"First message preview: {str(messages[0])[:200]}...")
+        
+        try:
+            stream = chat_model.astream(messages)
+            logger.info(f"Stream created: {type(stream)}")
+            
+            chunk_count = 0
+            async for chunk in stream:
+                chunk_count += 1
+                logger.info(f"Received chunk {chunk_count}: {repr(chunk)[:100]}")
+                if chunk:
+                    full_response += chunk
+                    yield {"type": "content", "content": chunk}
+                    logger.info(f"Yielded content chunk: {repr(chunk)[:50]}")
+            
+            logger.info(f"Stream completed. Total chunks: {chunk_count}, Full response length: {len(full_response)}")
+            
+            if chunk_count == 0:
+                logger.warning("No chunks received from OpenAI")
+                # Try non-streaming as fallback
+                logger.info("Attempting non-streaming fallback")
+                response = chat_model.run(messages)
+                if response:
+                    yield {"type": "content", "content": response}
+                    full_response = response
+                else:
+                    yield {"type": "error", "content": "No response received from AI model"}
+                
+        except Exception as e:
+            logger.error(f"Error during streaming: {type(e).__name__}: {str(e)}", exc_info=True)
+            # Try non-streaming as fallback
+            try:
+                logger.info("Attempting non-streaming fallback after error")
+                response = chat_model.run(messages)
+                if response:
+                    yield {"type": "content", "content": response}
+                    full_response = response
+                else:
+                    yield {"type": "error", "content": f"Streaming error: {str(e)}"}
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {str(fallback_error)}")
+                yield {"type": "error", "content": f"Both streaming and fallback failed: {str(e)}"}
         
         # Store in history
         if file_id not in self.chat_histories:
@@ -138,6 +203,8 @@ class ChatService:
         
         self.chat_histories[file_id].append(ChatMessage(role="user", content=message))
         self.chat_histories[file_id].append(ChatMessage(role="assistant", content=full_response, sources=sources))
+        
+        logger.info("generate_stream method completed")
     
     def clear_history(self, file_id: str) -> bool:
         if file_id in self.chat_histories:

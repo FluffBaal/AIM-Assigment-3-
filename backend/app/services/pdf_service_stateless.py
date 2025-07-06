@@ -4,10 +4,8 @@ Returns all data to client, no server-side storage needed
 """
 import os
 import uuid
-from typing import Dict, Any, List
+from typing import Dict, Any
 import logging
-from pathlib import Path
-import base64
 
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.openai_utils.embedding import EmbeddingModel
