@@ -3,7 +3,8 @@
  * Stores PDF data in browser memory/IndexedDB
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 import type { ChatMessage, ChatSource } from '../types/api';
 
 export interface ProcessedPDF {

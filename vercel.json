@@ -1,11 +1,9 @@
 {
-  "buildCommand": "cd frontend && npm run build",
+  "buildCommand": "cd frontend && npm install && npm install terser && npm run build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "cd frontend && npm install",
+  "framework": null,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.11",
-      "includeFiles": "backend/**",
       "maxDuration": 60
     }
   },
@@ -18,8 +16,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "env": {
-    "UPLOAD_DIR": "/tmp/uploads"
-  }
+  ]
 }
