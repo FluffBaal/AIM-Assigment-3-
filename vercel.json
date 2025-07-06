@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd frontend && npm install && npm install terser && npm run build",
+  "buildCommand": "cd frontend && npm install && npm install terser && npx vite build",
   "outputDirectory": "frontend/dist",
   "framework": null,
   "functions": {
