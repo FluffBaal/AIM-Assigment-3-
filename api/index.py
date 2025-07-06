@@ -9,8 +9,6 @@ os.environ['UPLOAD_DIR'] = '/tmp/uploads'
 
 from backend.app.main import app
 
-# Vercel expects a callable named 'app'
+# Vercel expects a callable named 'app' for ASGI applications
 # FastAPI instances are already ASGI applications
-
-# Create handler for Vercel
-handler = app
+app = app

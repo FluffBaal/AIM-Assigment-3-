@@ -13,7 +13,7 @@
       "destination": "/api/index"
     },
     {
-      "source": "/((?!assets/|vite\.svg).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
