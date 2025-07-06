@@ -1,9 +1,9 @@
-from fastapi import Request, Response
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
 from typing import Callable
 import time
 import logging
 from datetime import datetime
-import json
 from collections import defaultdict
 import asyncio
 
@@ -59,15 +59,12 @@ class MetricsCollector:
 # Global metrics collector
 metrics_collector = MetricsCollector()
 
-class MonitoringMiddleware:
+class MonitoringMiddleware(BaseHTTPMiddleware):
     """Middleware for request monitoring and metrics collection"""
-    
-    def __init__(self, app):
-        self.app = app
         
-    async def __call__(self, request: Request, call_next: Callable):
-        # Skip monitoring for health endpoints
-        if request.url.path in ["/health", "/metrics"]:
+    async def dispatch(self, request: Request, call_next: Callable):
+        # Skip monitoring for health endpoints and streaming endpoints
+        if request.url.path in ["/health", "/metrics"] or request.url.path.endswith("/stream"):
             return await call_next(request)
         
         # Start timing

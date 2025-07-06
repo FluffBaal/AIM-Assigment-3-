@@ -3,14 +3,12 @@ import uuid
 from pathlib import Path
 from typing import Dict, Any
 import logging
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.vectordatabase import VectorDatabase
 from aimakerspace.openai_utils.embedding import EmbeddingModel
 from app.core.config import settings
-from app.core.performance import measure_performance, run_in_thread_pool
+from app.core.performance import measure_performance
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +25,9 @@ class PDFService:
         try:
             # Load PDF
             logger.info(f"Loading PDF: {file_path}")
-            loader = PDFLoader()
-            documents = loader.load(str(file_path))
+            loader = PDFLoader(str(file_path))
+            loader.load()
+            documents = loader.documents
             
             if not documents:
                 raise ValueError("No content extracted from PDF")
@@ -43,7 +42,7 @@ class PDFService:
             chunk_metadata = []
             
             for doc_idx, document in enumerate(documents):
-                doc_chunks = text_splitter.split_text(document)
+                doc_chunks = text_splitter.split(document)
                 for chunk_idx, chunk in enumerate(doc_chunks):
                     chunks.append(chunk)
                     chunk_metadata.append({
@@ -58,15 +57,17 @@ class PDFService:
             
             # Create embeddings
             os.environ["OPENAI_API_KEY"] = api_key
-            embedding_model = EmbeddingModel(model_name=settings.embedding_model)
+            embedding_model = EmbeddingModel(embeddings_model_name=settings.embedding_model)
             
-            # Create vector database
-            vector_db = VectorDatabase()
-            await vector_db.build_from_texts(
-                texts=chunks,
-                embedding_model=embedding_model,
-                metadata=chunk_metadata
-            )
+            # Create vector database with embedding model
+            vector_db = VectorDatabase(embedding_model=embedding_model)
+            
+            # Build the vector database from chunks
+            await vector_db.abuild_from_list(chunks)
+            
+            # Store metadata separately (since VectorDatabase doesn't handle metadata)
+            # We'll need to map chunk indices to metadata
+            vector_db.metadata = chunk_metadata
             
             # Store in memory
             self.vector_stores[file_id] = vector_db

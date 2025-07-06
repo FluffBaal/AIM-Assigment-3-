@@ -10,7 +10,6 @@ import logging
 from pathlib import Path
 
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
-from aimakerspace.vectordatabase import VectorDatabase
 from aimakerspace.openai_utils.embedding import EmbeddingModel
 from app.core.config import settings
 

@@ -18,6 +18,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ fileId }) => {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortStreamRef = useRef<(() => void) | null>(null);
+  const streamingMessageRef = useRef<string>('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,6 +51,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ fileId }) => {
     };
 
     setMessages(prev => [...prev, assistantMessage]);
+    streamingMessageRef.current = ''; // Reset the ref for new streaming
 
     try {
       // Use streaming API
@@ -62,11 +64,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ fileId }) => {
         apiKey,
         (event) => {
           if (event.type === 'content') {
+            // Append to the ref to avoid closure issues
+            streamingMessageRef.current += event.content || '';
+            
+            // Update the message with the complete content from the ref
             setMessages(prev => {
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
               if (lastMessage.role === 'assistant') {
-                lastMessage.content += event.content || '';
+                lastMessage.content = streamingMessageRef.current;
               }
               return newMessages;
             });

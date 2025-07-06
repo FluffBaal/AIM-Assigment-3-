@@ -1,12 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch, AsyncMock
-from pathlib import Path
+from unittest.mock import patch, AsyncMock
 import io
 import uuid
 
 from app.main import app
-from app.models.upload import UploadResponse
 
 client = TestClient(app)
 

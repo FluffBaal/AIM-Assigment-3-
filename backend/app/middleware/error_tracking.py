@@ -1,12 +1,12 @@
-from fastapi import Request, Response
-from typing import Callable, Optional, Dict, Any, List
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from typing import Callable, Optional, Dict, Any
 import time
 import logging
 import traceback
 from datetime import datetime
 from collections import deque
 import hashlib
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -164,13 +164,14 @@ class ErrorTracker:
 # Global error tracker
 error_tracker = ErrorTracker()
 
-class ErrorTrackingMiddleware:
+class ErrorTrackingMiddleware(BaseHTTPMiddleware):
     """Middleware for tracking application errors"""
-    
-    def __init__(self, app):
-        self.app = app
         
-    async def __call__(self, request: Request, call_next: Callable):
+    async def dispatch(self, request: Request, call_next: Callable):
+        # Skip error tracking for streaming endpoints
+        if request.url.path.endswith("/stream"):
+            return await call_next(request)
+            
         start_time = time.time()
         
         try:
