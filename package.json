@@ -1,0 +1,10 @@
+{
+  "name": "rag-chat-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install": "cd frontend && npm install",
+    "build": "cd frontend && npx vite build",
+    "dev": "cd frontend && npm run dev"
+  }
+}
