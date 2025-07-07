@@ -2,8 +2,8 @@ import os
 import logging
 from typing import List, Dict, Any, AsyncGenerator
 
-from aimakerspace.openai_utils.chatmodel import ChatOpenAI
-from aimakerspace.openai_utils.prompts import SystemRolePrompt, UserRolePrompt
+from backend.aimakerspace.openai_utils.chatmodel import ChatOpenAI
+from backend.aimakerspace.openai_utils.prompts import SystemRolePrompt, UserRolePrompt
 from backend.app.models.chat import ChatMessage, ChatResponse, ChatSource
 from backend.app.core.config import settings
 

@@ -6,8 +6,8 @@ from unittest.mock import patch, MagicMock
 
 from backend.app.services.pdf_service import PDFService
 from backend.app.services.chat_service import ChatService
-from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
-from aimakerspace.vectordatabase import VectorDatabase
+from backend.aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
+from backend.aimakerspace.vectordatabase import VectorDatabase
 
 
 class TestRAGIntegration:

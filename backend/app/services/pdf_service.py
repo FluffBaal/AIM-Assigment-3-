@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Dict, Any
 import logging
 
-from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
-from aimakerspace.vectordatabase import VectorDatabase
-from aimakerspace.openai_utils.embedding import EmbeddingModel
+from backend.aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
+from backend.aimakerspace.vectordatabase import VectorDatabase
+from backend.aimakerspace.openai_utils.embedding import EmbeddingModel
 from backend.app.core.config import settings
 from backend.app.core.performance import measure_performance
 

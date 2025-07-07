@@ -9,8 +9,8 @@ from typing import Dict, Any, List
 import logging
 from pathlib import Path
 
-from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
-from aimakerspace.openai_utils.embedding import EmbeddingModel
+from backend.aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
+from backend.aimakerspace.openai_utils.embedding import EmbeddingModel
 from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
