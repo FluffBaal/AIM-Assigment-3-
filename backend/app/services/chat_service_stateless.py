@@ -44,7 +44,7 @@ class StatelessChatService:
         
         # Get embedding for the query
         os.environ["OPENAI_API_KEY"] = api_key
-        from aimakerspace.openai_utils.embedding import EmbeddingModel
+        from backend.aimakerspace.openai_utils.embedding import EmbeddingModel
         embedding_model = EmbeddingModel(embeddings_model_name=settings.embedding_model)
         query_embedding = await embedding_model.async_get_embedding(message)
         
@@ -112,7 +112,7 @@ class StatelessChatService:
         
         # Get embedding for the query
         os.environ["OPENAI_API_KEY"] = api_key
-        from aimakerspace.openai_utils.embedding import EmbeddingModel
+        from backend.aimakerspace.openai_utils.embedding import EmbeddingModel
         embedding_model = EmbeddingModel(embeddings_model_name=settings.embedding_model)
         query_embedding = await embedding_model.async_get_embedding(message)
         
