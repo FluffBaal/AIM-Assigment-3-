@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd frontend && npm install && npm install terser && npx vite build",
+  "buildCommand": "cd frontend && npm install && npm install terser && npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.py": {
@@ -13,7 +13,7 @@
       "destination": "/api/index"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }
   ],
