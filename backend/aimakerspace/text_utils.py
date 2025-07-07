@@ -67,15 +67,8 @@ class PDFLoader:
     def __init__(self, path: str):
         self.documents = []
         self.path = path
-        print(f"PDFLoader initialized with path: {self.path}")
 
     def load(self):
-        print(f"Loading PDF from path: {self.path}")
-        print(f"Path exists: {os.path.exists(self.path)}")
-        print(f"Is file: {os.path.isfile(self.path)}")
-        print(f"Is directory: {os.path.isdir(self.path)}")
-        print(f"File permissions: {oct(os.stat(self.path).st_mode)[-3:]}")
-        
         try:
             # Try to open the file first to verify access
             with open(self.path, 'rb'):

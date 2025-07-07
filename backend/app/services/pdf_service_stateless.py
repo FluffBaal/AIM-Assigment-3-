@@ -38,7 +38,8 @@ class StatelessPDFService:
             # Load and process PDF
             logger.info(f"Loading PDF: {temp_path}")
             loader = PDFLoader(temp_path)
-            documents = loader.load()
+            loader.load()
+            documents = loader.documents
             
             if not documents:
                 raise ValueError("No content extracted from PDF")
