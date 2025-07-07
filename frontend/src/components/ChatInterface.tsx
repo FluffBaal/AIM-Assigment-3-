@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApiKey } from '../hooks/useApiKey';
-import { apiClient } from '../services/api';
+import { api as apiClient } from '../services/apiFactory';
 import type { ChatMessage, ChatSource } from '../types/api';
 import { MessageList } from './MessageList';
 import { SourcesList } from './SourcesList';

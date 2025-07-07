@@ -237,4 +237,53 @@ class StatelessAPIClient {
   }
 }
 
-export const statelessApiClient = new StatelessAPIClient();
+class StatelessAPIClientWrapper extends StatelessAPIClient {
+  // Wrapper methods to match the regular API interface
+  async uploadPDF(file: File, apiKey: string) {
+    return this.uploadAndProcessPDF(file, apiKey);
+  }
+
+  async getFileStatus(fileId: string, apiKey: string) {
+    const pdfData = this.getPDFData(fileId);
+    if (!pdfData) {
+      throw new Error('PDF data not found');
+    }
+    return {
+      file_id: fileId,
+      status: 'completed' as const,
+      filename: pdfData.filename,
+      page_count: pdfData.page_count,
+      chunk_count: pdfData.chunk_count,
+      processed_at: new Date().toISOString()
+    };
+  }
+
+  async sendMessage(request: { file_id: string; message: string; history: ChatMessage[] }, apiKey: string) {
+    return super.sendMessage(request.file_id, request.message, request.history, apiKey);
+  }
+
+  streamChat(
+    request: { file_id: string; message: string; history: ChatMessage[] },
+    apiKey: string,
+    onMessage: (event: StreamEvent) => void,
+    onError: (error: Error) => void,
+    onComplete: () => void
+  ) {
+    return super.streamChat(request.file_id, request.message, request.history, apiKey, onMessage, onError, onComplete);
+  }
+
+  async checkHealth() {
+    return { status: 'healthy' };
+  }
+
+  async checkReadiness() {
+    return { 
+      ready: true,
+      dependencies: {
+        openai: { ready: true, error: null }
+      }
+    };
+  }
+}
+
+export const statelessApiClient = new StatelessAPIClientWrapper();
