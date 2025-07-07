@@ -17,7 +17,7 @@ Be concise but thorough in your responses."""
 class ChatService:
     def __init__(self):
         # Import here to avoid circular imports
-        from app.services import pdf_service_instance
+        from backend.app.services import pdf_service_instance
         self.pdf_service = pdf_service_instance
         self.chat_histories: Dict[str, List[ChatMessage]] = {}
     
