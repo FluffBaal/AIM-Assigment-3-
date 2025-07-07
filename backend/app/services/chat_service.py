@@ -4,8 +4,8 @@ from typing import List, Dict, Any, AsyncGenerator
 
 from aimakerspace.openai_utils.chatmodel import ChatOpenAI
 from aimakerspace.openai_utils.prompts import SystemRolePrompt, UserRolePrompt
-from app.models.chat import ChatMessage, ChatResponse, ChatSource
-from app.core.config import settings
+from backend.app.models.chat import ChatMessage, ChatResponse, ChatSource
+from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

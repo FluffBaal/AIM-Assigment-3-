@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from typing import Dict
-from app.middleware.rate_limiter import limiter, RATE_LIMITS
+from backend.app.middleware.rate_limiter import limiter, RATE_LIMITS
 
 router = APIRouter()
 

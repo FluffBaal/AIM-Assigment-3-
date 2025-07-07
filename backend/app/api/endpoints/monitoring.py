@@ -4,8 +4,8 @@ import psutil
 import platform
 from datetime import datetime
 
-from app.api.dependencies import get_api_key
-from app.middleware.monitoring import metrics_collector, performance_monitor
+from backend.app.api.dependencies import get_api_key
+from backend.app.middleware.monitoring import metrics_collector, performance_monitor
 
 router = APIRouter()
 

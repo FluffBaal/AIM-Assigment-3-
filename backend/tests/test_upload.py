@@ -4,7 +4,7 @@ from unittest.mock import patch, AsyncMock
 import io
 import uuid
 
-from app.main import app
+from backend.app.main import app
 
 client = TestClient(app)
 

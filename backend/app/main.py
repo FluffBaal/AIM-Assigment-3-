@@ -7,21 +7,21 @@ import logging
 from dotenv import load_dotenv
 from slowapi.errors import RateLimitExceeded
 
-from app.api import router
-from app.core.config import settings
-from app.middleware.error_handler import (
+from backend.app.api import router
+from backend.app.core.config import settings
+from backend.app.middleware.error_handler import (
     http_exception_handler,
     validation_exception_handler,
     general_exception_handler
 )
-from app.middleware.rate_limiter import (
+from backend.app.middleware.rate_limiter import (
     limiter,
     api_key_limiter,
     rate_limit_exceeded_handler
 )
-from app.middleware.request_validator import RequestValidator
-from app.middleware.monitoring import MonitoringMiddleware, performance_monitor
-from app.middleware.error_tracking import ErrorTrackingMiddleware
+from backend.app.middleware.request_validator import RequestValidator
+from backend.app.middleware.monitoring import MonitoringMiddleware, performance_monitor
+from backend.app.middleware.error_tracking import ErrorTrackingMiddleware
 
 # Load environment variables
 load_dotenv()

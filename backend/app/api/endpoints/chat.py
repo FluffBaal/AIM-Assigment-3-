@@ -5,10 +5,10 @@ import json
 import logging
 import asyncio
 
-from app.api.dependencies import get_api_key
-from app.models.chat import ChatRequest, ChatResponse
-from app.services.chat_service import ChatService
-from app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
+from backend.app.api.dependencies import get_api_key
+from backend.app.models.chat import ChatRequest, ChatResponse
+from backend.app.services.chat_service import ChatService
+from backend.app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

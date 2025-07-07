@@ -9,7 +9,7 @@ import logging
 
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.openai_utils.embedding import EmbeddingModel
-from app.core.config import settings
+from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

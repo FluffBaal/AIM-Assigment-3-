@@ -9,11 +9,11 @@ from pydantic import BaseModel
 import json
 import logging
 
-from app.api.dependencies import get_api_key
-from app.services.pdf_service_stateless import stateless_pdf_service
-from app.services.chat_service_stateless import stateless_chat_service
-from app.models.chat import ChatMessage
-from app.core.config import settings
+from backend.app.api.dependencies import get_api_key
+from backend.app.services.pdf_service_stateless import stateless_pdf_service
+from backend.app.services.chat_service_stateless import stateless_chat_service
+from backend.app.models.chat import ChatMessage
+from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

@@ -8,7 +8,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
-from app.middleware.monitoring import log_slow_query
+from backend.app.middleware.monitoring import log_slow_query
 
 logger = logging.getLogger(__name__)
 

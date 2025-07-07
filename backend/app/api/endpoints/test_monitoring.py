@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 from unittest.mock import patch
-from app.main import app
+from backend.app.main import app
 
 @pytest.mark.asyncio
 async def test_metrics_endpoint_requires_auth():

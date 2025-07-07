@@ -3,12 +3,12 @@ from typing import Dict, Any
 import logging
 from pathlib import Path
 
-from app.core.config import settings
-from app.api.dependencies import get_api_key
-from app.services import pdf_service_instance
-from app.models.upload import UploadResponse
-from app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
-from app.middleware.request_validator import sanitize_filename
+from backend.app.core.config import settings
+from backend.app.api.dependencies import get_api_key
+from backend.app.services import pdf_service_instance
+from backend.app.models.upload import UploadResponse
+from backend.app.middleware.rate_limiter import api_key_limiter, RATE_LIMITS
+from backend.app.middleware.request_validator import sanitize_filename
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

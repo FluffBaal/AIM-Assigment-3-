@@ -4,8 +4,8 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from app.services.pdf_service import PDFService
-from app.services.chat_service import ChatService
+from backend.app.services.pdf_service import PDFService
+from backend.app.services.chat_service import ChatService
 from aimakerspace.text_utils import PDFLoader, CharacterTextSplitter
 from aimakerspace.vectordatabase import VectorDatabase
 

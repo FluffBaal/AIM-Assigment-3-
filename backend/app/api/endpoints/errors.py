@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Dict, Any, Optional
 
-from app.api.dependencies import get_api_key
-from app.middleware.error_tracking import error_tracker
+from backend.app.api.dependencies import get_api_key
+from backend.app.middleware.error_tracking import error_tracker
 
 router = APIRouter()
 
