@@ -246,7 +246,16 @@ class StatelessAPIClientWrapper extends StatelessAPIClient {
   async getFileStatus(fileId: string, apiKey: string) {
     const pdfData = this.getPDFData(fileId);
     if (!pdfData) {
-      throw new Error('PDF data not found');
+      // Return a default status for files not in session storage
+      // This happens when navigating directly to a chat URL
+      return {
+        file_id: fileId,
+        status: 'completed' as const,
+        filename: 'Document',
+        page_count: 0,
+        chunk_count: 0,
+        processed_at: new Date().toISOString()
+      };
     }
     return {
       file_id: fileId,

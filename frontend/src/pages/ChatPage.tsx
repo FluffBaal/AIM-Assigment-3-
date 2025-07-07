@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChatInterface } from '../components/ChatInterface';
 import { useApiKey } from '../hooks/useApiKey';
-import { apiClient } from '../services/api';
+import { api as apiClient } from '../services/apiFactory';
 
 export const ChatPage: React.FC = () => {
   const { fileId } = useParams<{ fileId: string }>();
