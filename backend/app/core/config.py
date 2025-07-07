@@ -24,8 +24,8 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     
     # Vector Database
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
+    chunk_size: int = 1500
+    chunk_overlap: int = 300
     embedding_model: str = "text-embedding-3-small"
     
     # Chat Configuration  
